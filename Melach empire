@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melach Empire - Creator & Brand Ecosystem Hub</title>
+    <style>
+        :root {
+            --primary-blue: #0f172a;
+            --accent-gold: #d4af37;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #334155;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 10px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary-blue), #1e293b);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; color: var(--accent-gold); font-size: 22px; }
+        header p { margin: 5px 0 0; font-size: 13px; color: #94a3b8; }
+        
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 15px 0;
+        }
+        .nav-tabs button {
+            background: #e2e8f0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .nav-tabs button.active {
+            background: var(--primary-blue);
+            color: var(--accent-gold);
+        }
+
+        .card {
+            background: var(--card-bg);
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-blue);
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 6px;
+            font-size: 16px;
+        }
+        
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+        }
+        button.btn-primary {
+            background: var(--primary-blue);
+            color: var(--accent-gold);
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .fx-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .fx-box {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .fx-box span { font-weight: bold; color: #1e293b; }
+
+        .campaign-item {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent-gold);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .campaign-item h4 { margin: 0 0 5px 0; color: var(--primary-blue); }
+        .badge {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .alert {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            display: none;
+        }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Melach Empire</h1>
+        <p>Dynamic FX & Creator Verification Hub</p>
+    </header>
+
+    <div class="nav-tabs">
+        <button id="tabDashboard" class="active" onclick="switchTab('dashboard')">Dashboard</button>
+        <button id="tabCampaigns" onclick="switchTab('campaigns')">Campaigns</button>
+        <button id="tabVerify" onclick="switchTab('verify')">Submit Proof</button>
+        <button id="tabAuth" onclick="switchTab('auth')">Account</button>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <!-- VIEW: DASHBOARD & FX RATES -->
+    <div id="viewDashboard" class="view-section">
+        <div class="card">
+            <h3>Live Currency Engine (Base: USD)</h3>
+            <div class="form-group">
+                <label for="currencySelect">Select Currency View:</label>
+                <select id="currencySelect" onchange="updateFxDisplay()">
+                    <option value="USD">USD ($)</option>
+                    <option value="NGN" selected>NGN (₦)</option>
+                    <option value="GHS">GHS (₵)</option>
+                    <option value="KES">KES (KSh)</option>
+                </select>
+            </div>
+            <div id="fxLoading" style="font-style: italic; color: #64748b;">Fetching live exchange rates...</div>
+            <div class="fx-grid" id="fxGrid" style="display: none;">
+                <div class="fx-box">USD: <span id="rateUSD">1.00</span></div>
+                <div class="fx-box">NGN: <span id="rateNGN">--</span></div>
+                <div class="fx-box">GHS: <span id="rateGHS">--</span></div>
+                <div class="fx-box">KES: <span id="rateKES">--</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>User Wallet Status</h3>
+            <p>Wallet Balance (USD): <strong id="walletUsd">$0.00</strong></p>
+            <p>Converted Balance: <strong id="walletConverted">--</strong></p>
+        </div>
+    </div>
+
+    <!-- VIEW: CAMPAIGNS -->
+    <div id="viewCampaigns" class="view-section hidden">
+        <div class="card">
+            <h3>Active Viral Campaigns</h3>
+            <div id="campaignsList">Loading campaigns...</div>
+        </div>
+    </div>
+
+    <!-- VIEW: SOCIAL MEDIA VERIFICATION -->
+    <div id="viewVerify" class="view-section hidden">
+        <div class="card">
+            <h3>Submit Campaign Proof</h3>
+            <form id="proofForm" onsubmit="handleProofSubmit(event)">
+                <div class="form-group">
+                    <label for="proofPlatform">Platform</label>
+                    <select id="proofPlatform">
+                        <option value="TikTok">TikTok</option>
+                        <option value="YouTube">YouTube Shorts</option>
+                        <option value="Instagram">Instagram Reel / Post</option>
+                        <option value="X">X (Twitter)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="proofHandle">Creator Handle (@)</label>
+                    <input type="text" id="proofHandle" placeholder="@yourhandle" required>
+                </div>
+                <div class="form-group">
+                    <label for="proofUrl">Video URL</label>
+                    <input type="url" id="proofUrl" placeholder="https://www.tiktok.com/@user/video/..." required>
+                </div>
+                <button type="submit" class="btn-primary">Verify & Submit Proof</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW: AUTHENTICATION -->
+    <div id="viewAuth" class="view-section hidden">
+        <div class="card">
+            <h3>Creator / Brand Login</h3>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password (Min 8 chars)</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-primary">Login to Account</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // --- STATE MANAGEMENT ---
+    let appState = {
+        user: { email: 'creator@melachempire.com', role: 'Creator', currency: 'NGN', balanceUsd: 150.00 },
+        fxRates: { USD: 1.0, NGN: 1450.0, GHS: 15.80, KES: 130.50 }
+    };
+
+    // --- NAVIGATION TAB SWITCHING ---
+    function switchTab(tabName) {
+        ['dashboard', 'campaigns', 'verify', 'auth'].forEach(t => {
+            document.getElementById('view' + capitalize(t)).classList.add('hidden');
+            document.getElementById('tab' + capitalize(t)).classList.remove('active');
+        });
+        document.getElementById('view' + capitalize(tabName)).classList.remove('hidden');
+        document.getElementById('tab' + capitalize(tabName)).classList.add('active');
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function showAlert(message, type = 'success') {
+        const box = document.getElementById('alertBox');
+        box.textContent = message;
+        box.className = `alert alert-${type}`;
+        box.style.display = 'block';
+        setTimeout(() => { box.style.display = 'none'; }, 4000);
+    }
+
+    // --- DYNAMIC FX ENGINE (Client-Side) ---
+    async function fetchFxRates() {
+        try {
+            const res = await fetch('https://open.er-api.com/v6/latest/USD');
+            const data = await res.json();
+            if (data && data.rates) {
+                appState.fxRates = {
+                    USD: 1.0,
+                    NGN: data.rates.NGN || appState.fxRates.NGN,
+                    GHS: data.rates.GHS || appState.fxRates.GHS,
+                    KES: data.rates.KES || appState.fxRates.KES
+                };
+            }
+        } catch (err) {
+            console.warn('Network FX fetch failed, using cached backup rates.');
+        }
+        
+        document.getElementById('fxLoading').style.display = 'none';
+        document.getElementById('fxGrid').style.display = 'grid';
+        
+        document.getElementById('rateNGN').textContent = appState.fxRates.NGN.toFixed(2);
+        document.getElementById('rateGHS').textContent = appState.fxRates.GHS.toFixed(2);
+        document.getElementById('rateKES').textContent = appState.fxRates.KES.toFixed(2);
+
+        updateFxDisplay();
+    }
+
+    function updateFxDisplay() {
+        const currency = document.getElementById('currencySelect').value;
+        const rate = appState.fxRates[currency] || 1.0;
+        
+        document.getElementById('walletUsd').textContent = `$${appState.user.balanceUsd.toFixed(2)}`;
+        const converted = (appState.user.balanceUsd * rate).toFixed(2);
+        document.getElementById('walletConverted').textContent = `${converted} ${currency}`;
+    }
+
+    // --- CAMPAIGNS SIMULATION ---
+    function loadCampaigns() {
+        const campaigns = [
+            { id: 1, title: 'Melach Diesel Bulk Push', brand: 'Melec Empire', hashtag: '#MelachDiesel', payoutUsd: 15.00, slots: 42, max: 100 },
+            { id: 2, title: 'Afrobeats Viral Wave', brand: 'SoundEmpire', hashtag: '#MelachVibes', payoutUsd: 10.00, slots: 80, max: 150 }
+        ];
+
+        const currency = document.getElementById('currencySelect').value;
+        const rate = appState.fxRates[currency] || 1.0;
+        let html = '';
+
+        campaigns.forEach(c => {
+            const localPayout = (c.payoutUsd * rate).toFixed(2);
+            html += `
+                <div class="campaign-item">
+                    <h4>${c.title} <span class="badge">${c.brand}</span></h4>
+                    <p style="margin:4px 0; font-size:13px;">Tag: <strong>${c.hashtag}</strong></p>
+                    <p style="margin:4px 0; font-size:13px;">Reward: <strong>${localPayout} ${currency}</strong> ($${c.payoutUsd} USD)</p>
+                    <p style="margin:4px 0; font-size:12px; color:#64748b;">Slots Claimed: ${c.slots} / ${c.max}</p>
+                </div>
+            `;
+        });
+        document.getElementById('campaignsList').innerHTML = html;
+    }
+
+    // --- SOCIAL MEDIA URL VALIDATOR ---
+    function validateSocialMediaUrl(platform, url) {
+        const patterns = {
+            TikTok: /^https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/.*$/i,
+            YouTube: /^https?:\/\/(www\.)?(youtube\.com\/shorts\/|youtu\.be\/).*$/i,
+            Instagram: /^https?:\/\/(www\.)?instagram\.com\/(reel|p)\/.*$/i,
+            X: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/.*\/status\/.*$/i
+        };
+        const regex = patterns[platform];
+        return regex ? regex.test(url) : false;
+    }
+
+    function handleProofSubmit(e) {
+        e.preventDefault();
+        const platform = document.getElementById('proofPlatform').value;
+        const handle = document.getElementById('proofHandle').value;
+        const url = document.getElementById('proofUrl').value;
+
+        if (!validateSocialMediaUrl(platform, url)) {
+            showAlert(`Invalid link format for ${platform}. Please check the URL.`, 'error');
+            return;
+        }
+
+        showAlert(`Success! Your ${platform} submission has been verified and recorded.`);
+        document.getElementById('proofForm').reset();
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        showAlert('Logged in successfully!');
+        switchTab('dashboard');
+    }
+
+    // Initialize application on load
+    window.onload = () => {
+        fetchFxRates();
+        loadCampaigns();
+    };
+</script>
+
+</body>
+</html>
